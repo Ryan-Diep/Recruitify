@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import PdfUpload from './components/PdfUpload';
 import VideoUpload from './components/VideoUpload';
-import './App.css'; // (Optional: Use this if you have custom CSS)
+import './App.css';
 
 const App: React.FC = () => {
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [status, setStatus] = useState<string>('');
+  const [isUploading, setIsUploading] = useState(false);
 
   const handlePdfChange = (file: File) => {
     setPdfFile(file);
@@ -20,7 +21,6 @@ const App: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // If neither file is selected, show an error
     if (!pdfFile && !videoFile) {
       setStatus('Please upload at least one file (PDF or video).');
       return;
@@ -30,16 +30,24 @@ const App: React.FC = () => {
     if (pdfFile) formData.append('pdf', pdfFile);
     if (videoFile) formData.append('video', videoFile);
 
+    setIsUploading(true);
+    setStatus('Uploading...');
+
     try {
-      const response = await axios.post('http://localhost:3000/upload', formData, {
+      const response = await axios.post('/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
       setStatus(response.data.message || 'Upload successful!');
+      
+      setPdfFile(null);
+      setVideoFile(null);
     } catch (error) {
       console.error('Error:', error);
       setStatus('Upload failed. Please try again.');
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -52,13 +60,21 @@ const App: React.FC = () => {
           <VideoUpload onFileChange={handleVideoChange} />
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors"
+            disabled={isUploading || (!pdfFile && !videoFile)}
+            className={`w-full py-2 px-4 rounded-lg transition-colors ${
+              isUploading || (!pdfFile && !videoFile)
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-blue-500 hover:bg-blue-600 text-white'
+            }`}
           >
-            Upload
+            {isUploading ? 'Uploading...' : 'Upload'}
           </button>
         </form>
         {status && (
-          <p className={`mt-4 text-center ${status.includes('success') ? 'text-green-500' : 'text-red-500'}`}>
+          <p className={`mt-4 text-center ${
+            status.includes('success') ? 'text-green-500' : 
+            status === 'Uploading...' ? 'text-blue-500' : 'text-red-500'
+          }`}>
             {status}
           </p>
         )}
