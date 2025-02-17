@@ -7,6 +7,8 @@ import './App.css';
 const App: React.FC = () => {
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [writingSample, setWritingSample] = useState<string>('');
+  const [jobDescription, setJobDescription] = useState<string>('');
   const [status, setStatus] = useState<string>('');
   const [isUploading, setIsUploading] = useState(false);
 
@@ -18,17 +20,27 @@ const App: React.FC = () => {
     setVideoFile(file);
   };
 
+  const handleWritingSampleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setWritingSample(e.target.value);
+  };
+
+  const handleJobDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setJobDescription(e.target.value);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!pdfFile && !videoFile) {
-      setStatus('Please upload at least one file (PDF or video).');
+    if (!pdfFile || !videoFile || !writingSample.trim() || !jobDescription.trim()) {
+      setStatus('Please fill in all entries');
       return;
     }
 
     const formData = new FormData();
     if (pdfFile) formData.append('pdf', pdfFile);
     if (videoFile) formData.append('video', videoFile);
+    if (writingSample.trim()) formData.append('text', writingSample);
+    if (jobDescription.trim()) formData.append('text', jobDescription);
 
     setIsUploading(true);
     setStatus('Uploading...');
@@ -43,6 +55,8 @@ const App: React.FC = () => {
       
       setPdfFile(null);
       setVideoFile(null);
+      setWritingSample('');
+      setJobDescription('');
     } catch (error) {
       console.error('Error:', error);
       setStatus('Upload failed. Please try again.');
@@ -58,11 +72,35 @@ const App: React.FC = () => {
         <form onSubmit={handleSubmit} className="space-y-6">
           <PdfUpload onFileChange={handlePdfChange} />
           <VideoUpload onFileChange={handleVideoChange} />
+          <div className="space-y-2">
+            <label htmlFor="writing-sample" className="block text-sm font-medium text-gray-700">
+              Writing Sample
+            </label>
+            <textarea
+              id="writing-sample"
+              value={writingSample}
+              onChange={handleWritingSampleChange}
+              className="w-full h-96 px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 resize-y"
+              placeholder="Enter your writing sample..."
+            />
+          </div>
+          <div className="space-y-2">
+            <label htmlFor="job-description" className="block text-sm font-medium text-gray-700">
+              Job Description
+            </label>
+            <textarea
+              id="job-description"
+              value={jobDescription}
+              onChange={handleJobDescriptionChange}
+              className="w-full h-96 px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 resize-y"
+              placeholder="Enter your job description..."
+            />
+          </div>
           <button
             type="submit"
-            disabled={isUploading || (!pdfFile && !videoFile)}
+            disabled={isUploading || (!pdfFile || !videoFile || !writingSample.trim() || !jobDescription.trim())}
             className={`w-full py-2 px-4 rounded-lg transition-colors ${
-              isUploading || (!pdfFile && !videoFile)
+              isUploading || (!pdfFile || !videoFile || !writingSample.trim() || !jobDescription.trim())
                 ? 'bg-gray-400 cursor-not-allowed'
                 : 'bg-blue-500 hover:bg-blue-600 text-white'
             }`}

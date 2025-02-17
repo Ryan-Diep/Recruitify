@@ -22,6 +22,18 @@ def upload_files():
             if video_file.filename:
                 video_file.save(os.path.join(UPLOAD_FOLDER, "video.mp4"))
 
+        writing_sample = request.form.get('text', '').strip()
+        if writing_sample:
+            writing_sample_path = os.path.join(UPLOAD_FOLDER, "writing_sample.txt")
+            with open(writing_sample_path, 'w', encoding='utf-8') as writing_sample_file:
+                writing_sample_file.write(writing_sample)
+
+        job_description = request.form.get('text', '').strip()
+        if job_description:
+            job_description_path = os.path.join(UPLOAD_FOLDER, "job_description.txt")
+            with open(job_description_path, 'w', encoding='utf-8') as job_description_file:
+                job_description_file.write(job_description)
+
         return jsonify({'message': 'success'}), 200
 
     except Exception as e:
