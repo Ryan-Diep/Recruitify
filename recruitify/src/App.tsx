@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import PdfUpload from './components/PdfUpload';
 import VideoUpload from './components/VideoUpload';
@@ -11,6 +12,7 @@ const App: React.FC = () => {
   const [jobDescription, setJobDescription] = useState<string>('');
   const [status, setStatus] = useState<string>('');
   const [isUploading, setIsUploading] = useState(false);
+  const navigate = useNavigate();
 
   const handlePdfChange = (file: File) => {
     setPdfFile(file);
@@ -39,8 +41,8 @@ const App: React.FC = () => {
     const formData = new FormData();
     if (pdfFile) formData.append('pdf', pdfFile);
     if (videoFile) formData.append('video', videoFile);
-    if (writingSample.trim()) formData.append('text', writingSample);
-    if (jobDescription.trim()) formData.append('text', jobDescription);
+    if (writingSample.trim()) formData.append('writingSample', writingSample);
+    if (jobDescription.trim()) formData.append('jobDescription', jobDescription);
 
     setIsUploading(true);
     setStatus('Uploading...');
@@ -98,6 +100,7 @@ const App: React.FC = () => {
           </div>
           <button
             type="submit"
+            onClick={() => navigate('/Script')}
             disabled={isUploading || (!pdfFile || !videoFile || !writingSample.trim() || !jobDescription.trim())}
             className={`w-full py-2 px-4 rounded-lg transition-colors ${
               isUploading || (!pdfFile || !videoFile || !writingSample.trim() || !jobDescription.trim())

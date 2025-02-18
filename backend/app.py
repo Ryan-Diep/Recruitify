@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
+from recruitify_cohere import generate_script
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -22,13 +23,13 @@ def upload_files():
             if video_file.filename:
                 video_file.save(os.path.join(UPLOAD_FOLDER, "video.mp4"))
 
-        writing_sample = request.form.get('text', '').strip()
+        writing_sample = request.form.get('writingSample', '').strip()
         if writing_sample:
             writing_sample_path = os.path.join(UPLOAD_FOLDER, "writing_sample.txt")
             with open(writing_sample_path, 'w', encoding='utf-8') as writing_sample_file:
                 writing_sample_file.write(writing_sample)
 
-        job_description = request.form.get('text', '').strip()
+        job_description = request.form.get('jobDescription', '').strip()
         if job_description:
             job_description_path = os.path.join(UPLOAD_FOLDER, "job_description.txt")
             with open(job_description_path, 'w', encoding='utf-8') as job_description_file:
@@ -37,6 +38,16 @@ def upload_files():
         return jsonify({'message': 'success'}), 200
 
     except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/generate-pitch', methods=['GET'])
+def generate_pitch():
+    try:
+        pitch = generate_script()
+        print("Generated Pitch:", pitch)  
+        return jsonify({'pitch': pitch}), 200
+    except Exception as e:
+        print("Error generating pitch:", str(e))  
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':

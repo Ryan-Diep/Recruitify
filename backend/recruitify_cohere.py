@@ -18,14 +18,14 @@ def pdf_to_text(pdf_path):
 def generate_script():
     resume = pdf_to_text("./uploads/resume.pdf")
     
-    job_description_file = open("job_description.txt", "r")
+    job_description_file = open("./uploads/job_description.txt", "r")
     job_description = job_description_file.read()
 
-    writing_sample_file = open("writing_sample.txt", "r")
+    writing_sample_file = open("./uploads/writing_sample.txt", "r")
     writing_sample = writing_sample_file.read()
 
     prompt = ChatPromptTemplate.from_template("""
-    Based on the following resume and job description and writing_sample, create a compelling 2-paragraph pitch from the resume owner's point of view in the style and tone similar to the writing sample. Only return the pitch:
+    Based on the following resume and job description and writing sample, create a compelling 2-paragraph pitch from the resume owner's point of view in the style and tone similar to the writing sample. Only return the pitch:
         
         WRITING SAMPLE:
         {writing_sample}
