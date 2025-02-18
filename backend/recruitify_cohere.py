@@ -18,10 +18,10 @@ def pdf_to_text(pdf_path):
 def generate_script():
     resume = pdf_to_text("./uploads/resume.pdf")
     
-    job_description_file = open("job_description.txt", "r")
+    job_description_file = open("./uploads/job_description.txt", "r")
     job_description = job_description_file.read()
 
-    writing_sample_file = open("writing_sample.txt", "r")
+    writing_sample_file = open("./uploads/writing_sample.txt", "r")
     writing_sample = writing_sample_file.read()
 
     prompt = ChatPromptTemplate.from_template("""
